@@ -5,13 +5,8 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## REFLECTIONS
 
-This project was interesting and got me thinking a lot. It didn't take long until I realized this really isn't a realistic problem. When humans drive or autonomous cars drive, we are able to discern what sort of path lies in front of us (using eyes+brain, or in the case of autonomous cars, main processing compute system and camera) and make necessary adjustments before we know we are off track or not. However, with the only feedback from the car being what the cross-track-error (CTE) is and what speed and angle are, this is analogous to driving with blind-fold on, with sound alarms telling you that you are off from the desired pathing by cte amount, what speed your car is going at, and what your current heading is. That being said, there were a couple of techniques along with the PID control taught in the udacity lectures that I was able to apply to make the driving as smooth, safe, and fast as possible.
-
-<manual tuning>
-First, I had to start off with some manual tuning of the PID parameters. With the wrong PID parameters, the car would go off the center line too much via oscilliation, and no amount of other optimizations would help fix it. I decided on p=0.2, i=0.004, d=3.0. A reasonable amount of p was required so that the steering action would be altered enough, but not too much, that would try to correct the course. Too much i didn't help because there really isn't an issue of a "bias" for cte here, so I kept it minimal. For d, the counter-steering proportional to the difference in speed compared to the previous frame, had to be high because otherwise the steer_value decided by p factor alone would take too much oscillations to reach the center-line.
-
-
-
+This project was interesting and got me thinking a lot. It didn't take long until I realized this really isn't a realistic problem. When humans drive or autonomous cars drive, we are able to discern what sort of path lies in front of us (using eyes+brain, or in the case of autonomous cars, main processing compute system and camera). However, with the only feedback from the car being what the cross-track-error (CTE) is and what speed
+manual tuning
 
 steering pidasdf
 
