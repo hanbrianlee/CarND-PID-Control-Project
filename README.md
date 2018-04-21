@@ -25,6 +25,9 @@ Twiddle was the first thing I tried after manully fine-tuning the steering PID. 
 "Max/Min"
 I noticed that even with all the above implementations, the steering and the throttling were too aggressive and unrealistic. The person riding on it will throw up for sure. So I thought of incorporating max and min values for both steering and throttling. I investigated what sort of steering values my PID puts out and chose a conservative number of 0.3. So whenever PID gives out steering value greater than 0.3 or less than -0.3, they will be capped at those values. Similar concept was applied for the throttling except that I thought sudden braking really disrupts the comfort of the rider, so I made the minimum throttle to 0.1 (positive number, basically just letting off the accel pedal just a little bit). This greatly smoothed the drive.
 
+"Noise Rejection"
+I noticed that sometimes the cte values and the angles (especially at the start, it weirdly gives out 25?) suddenly jump. I mean the car can't all of sudden teleport to the left or right, or suddenly make a u-turn. So I investigated this and decided to reject egregiously high cte and angle values to the prevoius frame's values. This helped avoid some weird car behaviours when the car was going straight on the road perfectly.
+
 "Max Speed Run"
 As suggseted in the project intro, I tried to see how fast my model can drive the car safely. I noticed that the car can drive safely and smoothly up to an average speed about 32mph. Above that, it was able to drive safely (like around 40mph), but the car oscillated quite a bit. Above 40mph, the car runs fine for a lap or two, but eventually it went off track.
 
