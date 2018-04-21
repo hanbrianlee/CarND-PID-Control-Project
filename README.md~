@@ -5,22 +5,26 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## REFLECTIONS
 
-This project was interesting and got me thinking a lot. It didn't take long until I realized this really isn't a realistic problem. When humans drive or autonomous cars drive, we are able to discern what sort of path lies in front of us (using eyes+brain, or in the case of autonomous cars, main processing compute system and camera). However, with the only feedback from the car being what the cross-track-error (CTE) is and what speed
-manual tuning
+This project was interesting and got me thinking a lot. It didn't take long until I realized this really isn't a realistic problem. When humans drive or autonomous cars drive, we are able to discern what sort of path lies in front of us (using eyes+brain, or in the case of autonomous cars, main processing compute system and camera) and make necessary adjustments before we know we are off track or not. However, with the only feedback from the car being what the cross-track-error (CTE) is and what speed and angle are, this is analogous to driving with blind-fold on, with sound alarms telling you that you are off from the desired pathing by cte amount, what speed your car is going at, and what your current heading is. That being said, there were a couple of techniques along with the PID control taught in the udacity lectures that I was able to apply to make the driving as smooth, safe, and fast as possible.
 
-steering pidasdf
+"Manual Steering PID parameter tuning"
+First, I had to start off with some manual tuning of the PID parameters. With the wrong PID parameters, the car would go off the center line too much via oscilliation, and no amount of other optimizations would help fix it. I decided on p=0.2, i=0.004, d=3.0. A reasonable amount of p was required so that the steering action would be altered enough, but not too much, that would try to correct the course. Too much i didn't help because there really isn't an issue of a "bias" for cte here, so I kept it minimal. For d, the counter-steering proportional to the difference in speed compared to the previous frame, had to be high because otherwise the steer_value decided by p factor alone would take too much oscillations to reach the center-line.
 
-throttle pid
+"Throttle PID"
+I pondered upon the question why speed and angle are declared in the variables in the main function. Then I saw that my steer_value sometimes takes very large values (whether in the clockwise or counter-clockwise direction) and with constant throttle speed of 0.3, the oscillations can be big at times. Also, I noticed that some readings of cte's could be erroneous, causing the PID's P and D parts to freak out and give out emergency steering values, which causes unnecessary oscillations even when the car was previously headed in the right direction. Hence, I tried incorporating PID control for Throttle with cte as the error. However, I noticed that while this helps, I thought using the angle as the error would benefit more. Basically when angle is 0, it means that the car going straight is on the desired path (center-line). However, if the path was a curved path, then the angle value would always be a non-zero value (with oscillations it would take a slightly postive or negative value in alternating fashion, caused by the steer_value that varies according to cte value). Then application of PID on the throttle with P alone would result in a reduced speed. But this is what is desired! On the curved paths, we tend to drive slower and so should the car, since more cte errors are expected to occur on turns that emerge from straight paths! With slower speeds, there is less risk of going off the track and allows the system more time to correct its route to the center-line. The I parameter is a bit tricky. It does provide a little bit of smoothing effect but if the path was curving for a long time, then the sum of angles could grow quite large, causing the throttle_value to go lower and lower. This issue is rectified by the max/min implementation described below. The D parameter helps to reduce the throttle in case sudden angle difference happens, and increase the throttle when the angle gets reduced (stabilizing), which is what we want.
 
-speed adjustment
+"Speed Adjustment"
+I noticed that while correcting the path, throttle PID control causes the throttle_value to go too low, causing the vehicle to advance too slowly. It is fine but since we want to get to our destination in a reasonable time, I incorporated a small adjustment which would increase the throttle_speed by a factor * difference between the current speed and the desired speed. So if the desired speed is 25 and the current speed is only 5 due to severe path correction in progress, this speed adjustment will add 0.05*(25-5) = 1 throttle_value to whatever minimum value the throttle PID gives out. (say if the throttle PID gave a result of -0.8 throttle_value, the final throttle_value would be 0.2 instead of braking heavily at -0.8).
 
-hysteresis control
+"Hysteresis Control"
+I also noticed that even though driving the car to the dead-center would be ideal, this is not how we drive. We generally stay in the center but not precisely down to 0% error of margin. So I thought of allowing some error of margin and with hysteresis concept applied so that sudden changes to allowed error of margin would not occur. I allowed 0.05~0.1 cte to happen, so if the car is slightly to the right or left of the dead-center-line, whatever cte that is fed into the Steering PID would be 0. This implementation greatly improved the "smoothness" or "comfort" of the drive.
 
-twiddle
+"Twiddle"
+Twiddle was the first thing I tried after manully fine-tuning the steering PID. I noticed that since this PID control project is tied to a simulator whose vehicle dynamics equations are unknown, it was hard to run multiple iterations to fine-tune the parameters. So I implemented a "real-time" running twiddle algorithm that incorporates the concept of "state" saving where the last run ran in the if-clauses in the twiddle algorithm. With this I was able to run the twiddle algorithm, but while the twiddle gave out PID parameters that most quickly bring the car to the dead-center, the steer_values it created were too aggressive (it usually gave out high D parameter). I believe it is possible to use the Twiddle algorithm to fine-tune the PID parameters if the whole track run can be automatically controlled by the twiddle algorithm; making the car run one lap around the track for n iterations, it would be possible to settle on an optimized set of PID parameters. However, since this was not possible, and would require too much manual labor time to collect the errors, 
 
 max/min
 
-
+max speed run
 
 
 
